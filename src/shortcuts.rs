@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use global_hotkey::{
-    hotkey::{Code, HotKey, Modifiers},
+    hotkey::{Code, HotKey},
     GlobalHotKeyManager,
 };
 
@@ -13,7 +13,7 @@ pub struct Shortcuts {
 impl Shortcuts {
     pub fn new() -> Result<Self> {
         let hotkeys_manager = GlobalHotKeyManager::new().unwrap();
-        let shift_meta_a = HotKey::new(Some(Modifiers::SHIFT | Modifiers::META), Code::KeyA);
+        let shift_meta_a = HotKey::new(None, Code::F5);
         hotkeys_manager
             .register(shift_meta_a)
             .context("Failed to register hotkey")?;

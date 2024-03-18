@@ -3,10 +3,10 @@ use anyhow::{Context, Result};
 use log::trace;
 use std::fmt;
 use tao::window::Theme;
+use tray_icon::Icon;
 use tray_icon::{
-    icon::Icon,
     menu::{
-        accelerator::{Accelerator, Code, Modifiers},
+        accelerator::{Accelerator, Code},
         Menu, MenuItem, PredefinedMenuItem,
     },
     TrayIcon, TrayIconBuilder,
@@ -45,7 +45,7 @@ fn get_image(muted: bool, theme: Theme) -> Result<(Vec<u8>, u32, u32)> {
 fn get_icon(muted: bool, theme: Theme) -> Result<Icon> {
     trace!("Fetching icons");
     let (icon_rgba, icon_width, icon_height) = get_image(muted, theme)?;
-    let icon = tray_icon::icon::Icon::from_rgba(icon_rgba, icon_width, icon_height)
+    let icon = tray_icon::Icon::from_rgba(icon_rgba, icon_width, icon_height)
         .context("Failed to open icon")?;
 
     Ok(icon)
@@ -56,7 +56,7 @@ unsafe impl Sync for Tray {}
 
 impl fmt::Debug for Tray {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TrayIcon ID: {}", self.systray.id())
+        write!(f, "TrayIcon ID: {}", self.systray.id().0)
     }
 }
 
@@ -72,10 +72,10 @@ impl Tray {
         trace!("Creating tray icon");
         let icon = get_icon(muted, theme)?;
         let tray_menu = Menu::new();
-        let mute_shortcut = Accelerator::new(Some(Modifiers::SHIFT | Modifiers::META), Code::KeyA);
+        let mute_shortcut = Accelerator::new(None, Code::F5);
         let toggle_mute = MenuItem::new(get_mute_menu_text(muted), true, Some(mute_shortcut));
         let quit = MenuItem::new("Exit", true, None);
-        tray_menu.append_items(&[&toggle_mute, &PredefinedMenuItem::separator(), &quit]);
+        let _ = tray_menu.append_items(&[&toggle_mute, &PredefinedMenuItem::separator(), &quit]);
 
         let systray = TrayIconBuilder::new()
             .with_menu(Box::new(tray_menu))

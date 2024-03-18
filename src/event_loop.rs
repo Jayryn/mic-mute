@@ -2,14 +2,14 @@ use crate::mic::MicController;
 use crate::ui::UI;
 use crate::utils::Throttle;
 use async_std::task;
-use global_hotkey::GlobalHotKeyEvent;
+use global_hotkey::{GlobalHotKeyEvent, HotKeyState};
 use log::trace;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 use tao::event::Event;
-use tao::event_loop::{ControlFlow, EventLoop, EventLoopProxy};
+use tao::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
 use tao::platform::macos::{ActivationPolicy, EventLoopExtMacOS};
-use tray_icon::menu::MenuEvent;
+use tray_icon::menu::{MenuEvent, MenuId};
 
 // Timeout for mouse detect and device re-mute
 const THROTTLE_TIMEOUT_MILLIS: u64 = 200;
@@ -23,12 +23,12 @@ pub type EventLoopMessage = EventLoop<Message>;
 pub type EventLoopProxyMessage = EventLoopProxy<Message>;
 
 pub fn create() -> EventLoopMessage {
-    EventLoop::<Message>::with_user_event()
+    EventLoopBuilder::<Message>::with_user_event().build()
 }
 
 pub struct EventIds {
-    pub button_toggle_mute: u32,
-    pub button_quit: u32,
+    pub button_toggle_mute: MenuId,
+    pub button_quit: MenuId,
     pub shortcut_shift_meta_a: u32,
 }
 
@@ -71,7 +71,7 @@ pub fn start(
     let proxy = event_loop.create_proxy();
     event_loop.set_activation_policy(ActivationPolicy::Accessory);
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Poll;
+        *control_flow = ControlFlow::Wait;
 
         match event {
             Event::UserEvent(Message::HidePopup) => {
@@ -109,7 +109,7 @@ pub fn start(
         }
 
         if let Ok(event) = GlobalHotKeyEvent::receiver().try_recv() {
-            if shortcut_shift_meta_a == event.id {
+            if shortcut_shift_meta_a == event.id && event.state == HotKeyState::Pressed {
                 trace!("Toggle mic shortcut activated");
                 update_mic(ui.clone(), controller.clone(), proxy.clone(), true);
             }

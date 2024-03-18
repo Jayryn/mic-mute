@@ -26,8 +26,8 @@ impl UI {
         let shortcuts = Shortcuts::new().context("Failed to setup shortcuts")?;
 
         let event_ids = EventIds {
-            button_toggle_mute: tray.toggle_mute.id(),
-            button_quit: tray.quit.id(),
+            button_toggle_mute: tray.toggle_mute.id().clone(),
+            button_quit: tray.quit.id().clone(),
             shortcut_shift_meta_a: shortcuts.shift_meta_a.id(),
         };
 
