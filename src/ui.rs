@@ -22,13 +22,13 @@ impl UI {
         let event_loop = create();
         let popup = Popup::new(&event_loop, muted).context("Failed to setup popup window")?;
         let theme = popup.get_theme();
-        let tray = Tray::new(muted, theme, app_vars).context("Failed to create system tray")?;
-        let shortcuts = Shortcuts::new().context("Failed to setup shortcuts")?;
+        let tray = Tray::new(muted, theme, &app_vars).context("Failed to create system tray")?;
+        let shortcuts = Shortcuts::new(&app_vars).context("Failed to setup shortcuts")?;
 
         let event_ids = EventIds {
             button_toggle_mute: tray.toggle_mute.id().clone(),
             button_quit: tray.quit.id().clone(),
-            shortcut_shift_meta_a: shortcuts.shift_meta_a.id(),
+            mute_shortcut: shortcuts.mute_shortcut.id(),
         };
 
         let ui = Self {

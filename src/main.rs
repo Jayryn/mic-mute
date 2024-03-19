@@ -23,7 +23,7 @@ use log::{info, trace};
 fn main() {
     Builder::from_env(Env::default().default_filter_or("trace")).init();
     info!("Starting app");
-    let app_vars = AppVars::new();
+    let app_vars = AppVars::new().unwrap();
     let controller = MicController::new().unwrap();
     let muted = controller.muted;
     let controller = arc_lock(controller);

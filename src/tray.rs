@@ -2,13 +2,11 @@ use crate::config::AppVars;
 use anyhow::{Context, Result};
 use log::trace;
 use std::fmt;
+use std::str::FromStr;
 use tao::window::Theme;
 use tray_icon::Icon;
 use tray_icon::{
-    menu::{
-        accelerator::{Accelerator, Code},
-        Menu, MenuItem, PredefinedMenuItem,
-    },
+    menu::{accelerator::Accelerator, Menu, MenuItem, PredefinedMenuItem},
     TrayIcon, TrayIconBuilder,
 };
 
@@ -68,11 +66,11 @@ pub struct Tray {
 }
 
 impl Tray {
-    pub fn new(muted: bool, theme: Theme, app_vars: AppVars) -> Result<Self> {
+    pub fn new(muted: bool, theme: Theme, app_vars: &AppVars) -> Result<Self> {
         trace!("Creating tray icon");
         let icon = get_icon(muted, theme)?;
         let tray_menu = Menu::new();
-        let mute_shortcut = Accelerator::new(None, Code::F5);
+        let mute_shortcut = Accelerator::from_str(&app_vars.shortcut)?;
         let toggle_mute = MenuItem::new(get_mute_menu_text(muted), true, Some(mute_shortcut));
         let quit = MenuItem::new("Exit", true, None);
         let _ = tray_menu.append_items(&[&toggle_mute, &PredefinedMenuItem::separator(), &quit]);

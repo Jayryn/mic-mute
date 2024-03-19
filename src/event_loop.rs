@@ -29,7 +29,7 @@ pub fn create() -> EventLoopMessage {
 pub struct EventIds {
     pub button_toggle_mute: MenuId,
     pub button_quit: MenuId,
-    pub shortcut_shift_meta_a: u32,
+    pub mute_shortcut: u32,
 }
 
 fn update_mic(
@@ -62,7 +62,7 @@ pub fn start(
     let EventIds {
         button_toggle_mute,
         button_quit,
-        shortcut_shift_meta_a,
+        mute_shortcut,
     } = event_ids;
 
     let mut throttle = Throttle::new(Duration::from_millis(THROTTLE_TIMEOUT_MILLIS));
@@ -109,7 +109,7 @@ pub fn start(
         }
 
         if let Ok(event) = GlobalHotKeyEvent::receiver().try_recv() {
-            if shortcut_shift_meta_a == event.id && event.state == HotKeyState::Pressed {
+            if mute_shortcut == event.id && event.state == HotKeyState::Pressed {
                 trace!("Toggle mic shortcut activated");
                 update_mic(ui.clone(), controller.clone(), proxy.clone(), true);
             }
